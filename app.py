@@ -307,21 +307,17 @@ def update_trade_geography(dummy_input):
 def update_top_countries(dummy_input):
     df = pd.DataFrame(data["top_partner_countries"])
     
-    # Assuming 'balance' is available in data["top_partner_countries"]
-    # If not, data_preparation.py needs to be updated to include it
-    df["balance_bln"] = df["balance"] / 1_000_000_000 # Use balance_bln for coloring
-    df["primaryValue_bln"] = df["primaryValue"] / 1_000_000_000
-    
+    # Use the pre-calculated balance_bln and turnover_bln from data_preparation.py
     colors = ["#27ae60" if bal >= 0 else "#e74c3c" for bal in df["balance_bln"]]
     
     fig = go.Figure(go.Bar(
         x=df["country_name"],
-        y=df["primaryValue_bln"],
+        y=df["turnover_bln"],
         marker_color=colors,
-        text=[fmt_ru(val) for val in df["primaryValue_bln"]],
+        text=[fmt_ru(val) for val in df["turnover_bln"]],
         textposition="outside",
         hovertemplate="%{x}<br>Общий объём торговли: %{customdata}<extra></extra>",
-        customdata=[fmt_ru(val) for val in df["primaryValue_bln"]]
+        customdata=[fmt_ru(val) for val in df["turnover_bln"]]
     ))
     
     fig.update_layout(
@@ -346,7 +342,6 @@ def update_top_countries(dummy_input):
 )
 def update_russia_trade(dummy_input):
     df = pd.DataFrame(data["russia_trade_dynamics"])
-    df["year"] = df["year"].astype(int) # Ensure years are integers
     
     if df.empty:
         # Если нет данных по России, показываем пустой график
@@ -368,30 +363,34 @@ def update_russia_trade(dummy_input):
         )
         return fig
 
+    df["year"] = df["year"].astype(int) # Ensure years are integers
+    df["X_mln"] = df["X"] / 1_000_000 # Convert to millions for Russia chart
+    df["M_mln"] = df["M"] / 1_000_000 # Convert to millions for Russia chart
+
     fig = go.Figure()
     
     # Экспорт
     fig.add_trace(go.Scatter(
         x=df["year"],
-        y=df["X"] / 1_000_000, # Still in millions for Russia, as per requirement
+        y=df["X_mln"],
         mode="lines+markers",
         name="Экспорт",
         line=dict(color="#27ae60", width=3),
         marker=dict(size=6),
         hovertemplate="Год: %{x}<br>Экспорт: %{customdata}<extra></extra>",
-        customdata=[fmt_ru(val / 1_000_000) for val in df["X"]]
+        customdata=[fmt_ru(val / 1_000) for val in df["X_mln"]] # Convert to billions for fmt_ru
     ))
     
     # Импорт
     fig.add_trace(go.Scatter(
         x=df["year"],
-        y=df["M"] / 1_000_000, # Still in millions for Russia, as per requirement
+        y=df["M_mln"],
         mode="lines+markers",
         name="Импорт",
         line=dict(color="#e74c3c", width=3),
         marker=dict(size=6),
         hovertemplate="Год: %{x}<br>Импорт: %{customdata}<extra></extra>",
-        customdata=[fmt_ru(val / 1_000_000) for val in df["M"]]
+        customdata=[fmt_ru(val / 1_000) for val in df["M_mln"]] # Convert to billions for fmt_ru
     ))
     
     fig.update_layout(
@@ -470,5 +469,4 @@ def update_structure_changes(dummy_input):
 
 if __name__ == "__main__":
     app.run_server(debug=True, host="0.0.0.0", port=8050)
-
 
