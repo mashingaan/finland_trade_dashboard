@@ -6,26 +6,19 @@ import pandas as pd
 import json
 
 # Загрузка данных
-with open('dashboard_data.json', 'r', encoding='utf-8') as f:
+with open("dashboard_data.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
 # Функция для форматирования чисел
-def format_number(value):
-    """Форматирует числа в формате 'млн USD' или 'млрд USD' с одним знаком после запятой"""
-    if pd.isna(value) or value == 0:
-        return "0,0 млн USD"
-    
-    abs_value = abs(value)
-    sign = "-" if value < 0 else ""
-    
-    if abs_value >= 1e9:
-        return f"{sign}{abs_value/1e9:.1f} млрд USD"
-    elif abs_value >= 1e6:
-        return f"{sign}{abs_value/1e6:.1f} млн USD"
-    elif abs_value >= 1e3:
-        return f"{sign}{abs_value/1e3:.1f} тыс. USD"
+def fmt_ru(v):
+    if pd.isna(v):
+        return ""
+    abs_v = abs(v)
+    sign = "-" if v < 0 else ""
+    if abs_v >= 1:
+        return f"{sign}{abs_v:,.1f} млрд USD".replace(",", " ")
     else:
-        return f"{sign}{abs_value:.1f} USD"
+        return f"{sign}{abs_v*1_000:,.1f} млн USD".replace(",", " ")
 
 # Инициализация приложения Dash
 app = dash.Dash(__name__)
@@ -35,292 +28,325 @@ server = app.server
 app.layout = html.Div([
     html.Div([
         html.H1("Дашборд внешней торговли Финляндии", 
-                style={'textAlign': 'center', 'color': '#2c3e50', 'marginBottom': '10px'}),
+                style={"textAlign": "center", "color": "#2c3e50", "marginBottom": "10px"}),
         html.P("Интерактивный анализ данных международной торговли Финляндии (2000-2023)", 
-               style={'textAlign': 'center', 'color': '#7f8c8d', 'marginBottom': '30px'})
-    ], style={'backgroundColor': '#ecf0f1', 'padding': '20px', 'marginBottom': '20px'}),
+               style={"textAlign": "center", "color": "#7f8c8d", "marginBottom": "30px"})
+    ], style={"backgroundColor": "#ecf0f1", "padding": "20px", "marginBottom": "20px"}),
     
     # График динамики торговли
     html.Div([
-        html.H3("Динамика торговли", style={'color': '#2c3e50', 'marginBottom': '15px'}),
-        dcc.Graph(id='trade-dynamics-chart')
-    ], style={'backgroundColor': '#ffffff', 'padding': '20px', 'marginBottom': '20px', 'borderRadius': '8px', 'boxShadow': '0 2px 4px rgba(0,0,0,0.1)'}),
+        html.H3("Динамика торговли", style={"color": "#2c3e50", "marginBottom": "15px"}),
+        dcc.Graph(id="trade-dynamics-chart")
+    ], style={"backgroundColor": "#ffffff", "padding": "20px", "marginBottom": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"}),
     
     # Строка с двумя графиками
     html.Div([
         # ТОП-10 товарных групп
         html.Div([
-            html.H3("ТОП-10 товарных групп по экспорту", style={'color': '#2c3e50', 'marginBottom': '15px'}),
-            dcc.Graph(id='top-commodities-chart')
-        ], style={'width': '48%', 'display': 'inline-block', 'backgroundColor': '#ffffff', 
-                  'padding': '20px', 'borderRadius': '8px', 'boxShadow': '0 2px 4px rgba(0,0,0,0.1)'}),
+            html.H3("ТОП-10 товарных групп по экспорту", style={"color": "#2c3e50", "marginBottom": "15px"}),
+            dcc.Graph(id="top-commodities-chart")
+        ], style={"width": "48%", "display": "inline-block", "backgroundColor": "#ffffff", 
+                  "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"}),
         
         # Экономические секторы
         html.Div([
-            html.H3("Экономические секторы", style={'color': '#2c3e50', 'marginBottom': '15px'}),
-            dcc.Graph(id='economic-sectors-chart')
-        ], style={'width': '48%', 'display': 'inline-block', 'marginLeft': '4%', 'backgroundColor': '#ffffff', 
-                  'padding': '20px', 'borderRadius': '8px', 'boxShadow': '0 2px 4px rgba(0,0,0,0.1)'})
-    ], style={'marginBottom': '20px'}),
+            html.H3("Экономические секторы", style={"color": "#2c3e50", "marginBottom": "15px"}),
+            dcc.Graph(id="economic-sectors-chart")
+        ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "backgroundColor": "#ffffff", 
+                  "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"})
+    ], style={"marginBottom": "20px"}),
     
     # Строка с двумя графиками
     html.Div([
         # География торговли
         html.Div([
-            html.H3("География торговли", style={'color': '#2c3e50', 'marginBottom': '15px'}),
-            dcc.Graph(id='trade-geography-chart')
-        ], style={'width': '48%', 'display': 'inline-block', 'backgroundColor': '#ffffff', 
-                  'padding': '20px', 'borderRadius': '8px', 'boxShadow': '0 2px 4px rgba(0,0,0,0.1)'}),
+            html.H3("География торговли", style={"color": "#2c3e50", "marginBottom": "15px"}),
+            dcc.Graph(id="trade-geography-chart")
+        ], style={"width": "48%", "display": "inline-block", "backgroundColor": "#ffffff", 
+                  "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"}),
         
         # ТОП-10 стран-партнёров
         html.Div([
-            html.H3("ТОП-10 стран-партнёров (5 лет)", style={'color': '#2c3e50', 'marginBottom': '15px'}),
-            dcc.Graph(id='top-countries-chart')
-        ], style={'width': '48%', 'display': 'inline-block', 'marginLeft': '4%', 'backgroundColor': '#ffffff', 
-                  'padding': '20px', 'borderRadius': '8px', 'boxShadow': '0 2px 4px rgba(0,0,0,0.1)'})
-    ], style={'marginBottom': '20px'}),
+            html.H3("ТОП-10 стран-партнёров (5 лет)", style={"color": "#2c3e50", "marginBottom": "15px"}),
+            dcc.Graph(id="top-countries-chart")
+        ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "backgroundColor": "#ffffff", 
+                  "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"})
+    ], style={"marginBottom": "20px"}),
     
     # Строка с двумя графиками
     html.Div([
         # Торговля с Россией
         html.Div([
-            html.H3("Торговля с Россией (5 лет)", style={'color': '#2c3e50', 'marginBottom': '15px'}),
-            dcc.Graph(id='russia-trade-chart')
-        ], style={'width': '48%', 'display': 'inline-block', 'backgroundColor': '#ffffff', 
-                  'padding': '20px', 'borderRadius': '8px', 'boxShadow': '0 2px 4px rgba(0,0,0,0.1)'}),
-        
-        # Изменения структуры торговли
-        html.Div([
-            html.H3("Изменения структуры (10 лет)", style={'color': '#2c3e50', 'marginBottom': '15px'}),
-            dcc.Graph(id='structure-changes-chart')
-        ], style={'width': '48%', 'display': 'inline-block', 'marginLeft': '4%', 'backgroundColor': '#ffffff', 
-                  'padding': '20px', 'borderRadius': '8px', 'boxShadow': '0 2px 4px rgba(0,0,0,0.1)'})
-    ])
-], style={'fontFamily': 'Arial, sans-serif', 'margin': '0', 'padding': '20px', 'backgroundColor': '#f8f9fa'})
+            html.H3("Торговля с Россией (5 лет)", style={"color": "#2c3e50", "marginBottom": "15px"}),
+            dcc.Graph(id="russia-trade-chart")
+        ], style={"width": "48%", "display": "inline-block", "backgroundColor": "#ffffff", 
+                  "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"})
+    ]),
+    
+    # Изменения структуры торговли
+    html.Div([
+        html.H3("Изменения структуры (10 лет)", style={"color": "#2c3e50", "marginBottom": "15px"}),
+        dcc.Graph(id="structure-changes-chart")
+    ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "backgroundColor": "#ffffff", 
+              "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"})
+
+], style={"fontFamily": "Arial, sans-serif", "margin": "0", "padding": "20px", "backgroundColor": "#f8f9fa"})
 
 # Callback для динамики торговли
 @app.callback(
-    Output('trade-dynamics-chart', 'figure'),
-    Input('trade-dynamics-chart', 'id') # Dummy input to trigger callback on load
+    Output("trade-dynamics-chart", "figure"),
+    Input("trade-dynamics-chart", "id") # Dummy input to trigger callback on load
 )
 def update_trade_dynamics(dummy_input):
-    df = pd.DataFrame(data['trade_dynamics'])
+    df = pd.DataFrame(data["trade_dynamics"])
+    df["year"] = df["year"].astype(int) # Ensure years are integers
+    df["X_bln"] = df["X"] / 1_000_000_000
+    df["M_bln"] = df["M"] / 1_000_000_000
+    df["balance_bln"] = df["balance"] / 1_000_000_000
     
     fig = go.Figure()
     
     # Экспорт
     fig.add_trace(go.Scatter(
-        x=df['year'],
-        y=df['X'],
-        mode='lines+markers',
-        name='Экспорт',
-        line=dict(color='#27ae60', width=3),
+        x=df["year"],
+        y=df["X_bln"],
+        mode="lines+markers",
+        name="Экспорт",
+        line=dict(color="#27ae60", width=3),
         marker=dict(size=6),
-        hovertemplate='Год: %{x}<br>Экспорт: %{customdata}<extra></extra>',
-        customdata=[format_number(val) for val in df['X']]
+        hovertemplate="Год: %{x}<br>Экспорт: %{customdata}<extra></extra>",
+        customdata=[fmt_ru(val) for val in df["X_bln"]]
     ))
     
     # Импорт
     fig.add_trace(go.Scatter(
-        x=df['year'],
-        y=df['M'],
-        mode='lines+markers',
-        name='Импорт',
-        line=dict(color='#e74c3c', width=3),
+        x=df["year"],
+        y=df["M_bln"],
+        mode="lines+markers",
+        name="Импорт",
+        line=dict(color="#e74c3c", width=3),
         marker=dict(size=6),
-        hovertemplate='Год: %{x}<br>Импорт: %{customdata}<extra></extra>',
-        customdata=[format_number(val) for val in df['M']]
+        hovertemplate="Год: %{x}<br>Импорт: %{customdata}<extra></extra>",
+        customdata=[fmt_ru(val) for val in df["M_bln"]]
     ))
     
     # Сальдо на второй оси
     fig.add_trace(go.Scatter(
-        x=df['year'],
-        y=df['balance'],
-        mode='lines+markers',
-        name='Сальдо',
-        line=dict(color='#3498db', width=3),
+        x=df["year"],
+        y=df["balance_bln"],
+        mode="lines+markers",
+        name="Сальдо",
+        line=dict(color="#3498db", width=3),
         marker=dict(size=6),
-        yaxis='y2',
-        hovertemplate='Год: %{x}<br>Сальдо: %{customdata}<extra></extra>',
-        customdata=[format_number(val) for val in df['balance']]
+        yaxis="y2",
+        hovertemplate="Год: %{x}<br>Сальдо: %{customdata}<extra></extra>",
+        customdata=[fmt_ru(val) for val in df["balance_bln"]]
     ))
     
     fig.update_layout(
-        title='Динамика экспорта, импорта и торгового сальдо',
-        xaxis_title='Год',
+        title="Динамика экспорта, импорта и торгового сальдо",
+        xaxis_title="Год",
         yaxis=dict(
-            title='Объём торговли (млн USD)',
-            side='left',
-            tickformat=''
+            title="Объём торговли (млрд USD)",
+            side="left",
+            tickformat=".1f", # Format for billion USD
+            gridcolor="rgba(0,0,0,0.05)"
         ),
         yaxis2=dict(
-            title='Торговое сальдо (млн USD)',
-            side='right',
-            overlaying='y',
-            tickformat=''
+            title="Торговое сальдо (млрд USD)",
+            side="right",
+            overlaying="y",
+            tickformat=".1f", # Format for billion USD
+            gridcolor="rgba(0,0,0,0.05)"
         ),
-        hovermode='x unified',
+        hovermode="x unified",
         legend=dict(x=0.02, y=0.98),
         height=400,
-        font=dict(family="Arial", size=12)
+        font=dict(family="Arial", size=12),
+        plot_bgcolor="rgba(0,0,0,0)", # Transparent background
+        paper_bgcolor="rgba(0,0,0,0)" # Transparent background
     )
     
     return fig
 
 # Callback для ТОП-10 товарных групп
 @app.callback(
-    Output('top-commodities-chart', 'figure'),
-    Input('top-commodities-chart', 'id') # Dummy input
+    Output("top-commodities-chart", "figure"),
+    Input("top-commodities-chart", "id") # Dummy input
 )
 def update_top_commodities(dummy_input):
-    df = pd.DataFrame(data['top_export_commodities'])
+    df = pd.DataFrame(data["top_export_commodities"])
+    df["primaryValue_bln"] = df["primaryValue"] / 1_000_000_000
     
     # Сокращаем длинные названия товарных групп
-    df['short_name'] = df['commodity_name'].apply(lambda x: x[:40] + '...' if len(x) > 40 else x)
+    df["short_name"] = df["commodity_name"].apply(lambda x: (x[:25] + "...") if len(x) > 25 else x)
     
     fig = go.Figure(go.Bar(
-        x=df['primaryValue'],
-        y=df['short_name'],
-        orientation='h',
-        marker_color='#27ae60',
-        text=[format_number(val) for val in df['primaryValue']],
-        textposition='inside',
-        textfont=dict(color='white', size=10),
-        hovertemplate='%{y}<br>Объём: %{customdata}<extra></extra>',
-        customdata=[format_number(val) for val in df['primaryValue']]
+        x=df["primaryValue_bln"],
+        y=df["short_name"],
+        orientation="h",
+        marker_color="#27ae60",
+        text=[fmt_ru(val) for val in df["primaryValue_bln"]],
+        textposition="inside",
+        textfont=dict(color="white", size=10),
+        hovertemplate="%{y}<br>Объём: %{customdata}<extra></extra>",
+        customdata=[fmt_ru(val) for val in df["primaryValue_bln"]]
     ))
     
     fig.update_layout(
-        title='ТОП-10 товарных групп по экспорту',
-        xaxis_title='Объём (млн USD)',
-        yaxis_title='Товарная группа',
+        title="ТОП-10 товарных групп по экспорту",
+        xaxis_title="Объём (млрд USD)",
+        yaxis_title="Товарная группа",
         height=500,
         margin=dict(l=200),
-        font=dict(family="Arial", size=10)
+        font=dict(family="Arial", size=10),
+        plot_bgcolor="rgba(0,0,0,0)", # Transparent background
+        paper_bgcolor="rgba(0,0,0,0)", # Transparent background
+        xaxis=dict(gridcolor="rgba(0,0,0,0.05)")
     )
     
     return fig
 
 # Callback для экономических секторов
 @app.callback(
-    Output('economic-sectors-chart', 'figure'),
-    Input('economic-sectors-chart', 'id') # Dummy input
+    Output("economic-sectors-chart", "figure"),
+    Input("economic-sectors-chart", "id") # Dummy input
 )
 def update_economic_sectors(dummy_input):
-    df = pd.DataFrame(data['economic_sectors'])
+    df = pd.DataFrame(data["economic_sectors"])
     
     # Фильтруем только секторы с экспортом > 0
-    df_filtered = df[df['X'] > 0].copy()
-    df_filtered['export_share_pct'] = df_filtered['export_share'] * 100
+    df_filtered = df[df["X"] > 0].copy()
+    df_filtered["export_share_pct"] = df_filtered["export_share"] * 100
+    df_filtered["X_bln"] = df_filtered["X"] / 1_000_000_000
     
     # Сокращаем названия секторов
-    df_filtered['short_sector'] = df_filtered['sector'].apply(lambda x: x[:25] + '...' if len(x) > 25 else x)
+    df_filtered["short_sector"] = df_filtered["sector"].apply(lambda x: (x[:25] + "...") if len(x) > 25 else x)
     
     fig = go.Figure(go.Pie(
-        labels=df_filtered['short_sector'],
-        values=df_filtered['export_share_pct'],
+        labels=df_filtered["short_sector"],
+        values=df_filtered["export_share_pct"],
         hole=0.4,
-        textinfo='label+percent',
-        textposition='outside',
+        textinfo="label+percent",
+        textposition="outside",
         textfont=dict(size=10),
-        hovertemplate='%{label}<br>Доля: %{value:.1f}%<br>Объём: %{customdata}<extra></extra>',
-        customdata=[format_number(val) for val in df_filtered['X']]
+        hovertemplate="%{label}<br>Доля: %{value:.1f}%<br>Объём: %{customdata}<extra></extra>",
+        customdata=[fmt_ru(val) for val in df_filtered["X_bln"]]
     ))
     
     fig.update_layout(
-        title='Распределение экспорта по секторам экономики',
+        title="Распределение экспорта по секторам экономики",
         height=500,
         font=dict(family="Arial", size=10),
-        showlegend=False
+        showlegend=False,
+        plot_bgcolor="rgba(0,0,0,0)", # Transparent background
+        paper_bgcolor="rgba(0,0,0,0)" # Transparent background
     )
     
     return fig
 
 # Callback для географии торговли
 @app.callback(
-    Output('trade-geography-chart', 'figure'),
-    Input('trade-geography-chart', 'id') # Dummy input
+    Output("trade-geography-chart", "figure"),
+    Input("trade-geography-chart", "id") # Dummy input
 )
 def update_trade_geography(dummy_input):
-    df = pd.DataFrame(data['trade_geography'])
+    df = pd.DataFrame(data["trade_geography"])
     
     # Исключаем неизвестные регионы
-    df_filtered = df[df['world_part'] != 'Неизвестно'].copy()
-    df_filtered['total_trade'] = df_filtered['X'] + df_filtered['M']
+    df_filtered = df[df["world_part"] != "Неизвестно"].copy()
+    df_filtered["X_bln"] = df_filtered["X"] / 1_000_000_000
+    df_filtered["M_bln"] = df_filtered["M"] / 1_000_000_000
     
     fig = go.Figure()
     
     # Экспорт
     fig.add_trace(go.Bar(
-        x=df_filtered['world_part'],
-        y=df_filtered['X'],
-        name='Экспорт',
-        marker_color='#27ae60',
-        text=[format_number(val) for val in df_filtered['X']],
-        textposition='inside',
-        hovertemplate='%{x}<br>Экспорт: %{customdata}<extra></extra>',
-        customdata=[format_number(val) for val in df_filtered['X']]
+        x=df_filtered["world_part"],
+        y=df_filtered["X_bln"],
+        name="Экспорт",
+        marker_color="#27ae60",
+        text=[fmt_ru(val) for val in df_filtered["X_bln"]],
+        textposition="inside",
+        hovertemplate="%{x}<br>Экспорт: %{customdata}<extra></extra>",
+        customdata=[fmt_ru(val) for val in df_filtered["X_bln"]]
     ))
     
     # Импорт
     fig.add_trace(go.Bar(
-        x=df_filtered['world_part'],
-        y=df_filtered['M'],
-        name='Импорт',
-        marker_color='#e74c3c',
-        text=[format_number(val) for val in df_filtered['M']],
-        textposition='inside',
-        hovertemplate='%{x}<br>Импорт: %{customdata}<extra></extra>',
-        customdata=[format_number(val) for val in df_filtered['M']]
+        x=df_filtered["world_part"],
+        y=df_filtered["M_bln"],
+        name="Импорт",
+        marker_color="#e74c3c",
+        text=[fmt_ru(val) for val in df_filtered["M_bln"]],
+        textposition="inside",
+        hovertemplate="%{x}<br>Импорт: %{customdata}<extra></extra>",
+        customdata=[fmt_ru(val) for val in df_filtered["M_bln"]]
     ))
     
     fig.update_layout(
-        title='Объёмы торговли по регионам мира',
-        xaxis_title='Регион',
-        yaxis_title='Объём торговли (млн USD)',
-        barmode='group',
+        title="Объёмы торговли по регионам мира",
+        xaxis_title="Регион",
+        yaxis_title="Объём торговли (млрд USD)",
+        barmode="group",
         height=400,
-        font=dict(family="Arial", size=12)
+        font=dict(family="Arial", size=12),
+        plot_bgcolor="rgba(0,0,0,0)", # Transparent background
+        paper_bgcolor="rgba(0,0,0,0)", # Transparent background
+        xaxis=dict(gridcolor="rgba(0,0,0,0.05)"),
+        yaxis=dict(gridcolor="rgba(0,0,0,0.05)")
     )
     
     return fig
 
 # Callback для ТОП-10 стран-партнёров
 @app.callback(
-    Output('top-countries-chart', 'figure'),
-    Input('top-countries-chart', 'id') # Dummy input
+    Output("top-countries-chart", "figure"),
+    Input("top-countries-chart", "id") # Dummy input
 )
 def update_top_countries(dummy_input):
-    df = pd.DataFrame(data['top_partner_countries'])
+    df = pd.DataFrame(data["top_partner_countries"])
+    
+    # Assuming 'balance' is available in data["top_partner_countries"]
+    # If not, data_preparation.py needs to be updated to include it
+    df["balance_bln"] = df["balance"] / 1_000_000_000 # Use balance_bln for coloring
+    df["primaryValue_bln"] = df["primaryValue"] / 1_000_000_000
+    
+    colors = ["#27ae60" if bal >= 0 else "#e74c3c" for bal in df["balance_bln"]]
     
     fig = go.Figure(go.Bar(
-        x=df['country_name'],
-        y=df['primaryValue'],
-        marker_color='#3498db',
-        text=[format_number(val) for val in df['primaryValue']],
-        textposition='outside',
-        hovertemplate='%{x}<br>Общий объём торговли: %{customdata}<extra></extra>',
-        customdata=[format_number(val) for val in df['primaryValue']]
+        x=df["country_name"],
+        y=df["primaryValue_bln"],
+        marker_color=colors,
+        text=[fmt_ru(val) for val in df["primaryValue_bln"]],
+        textposition="outside",
+        hovertemplate="%{x}<br>Общий объём торговли: %{customdata}<extra></extra>",
+        customdata=[fmt_ru(val) for val in df["primaryValue_bln"]]
     ))
     
     fig.update_layout(
-        title='ТОП-10 стран-партнёров по общему объёму торговли',
-        xaxis_title='Страна',
-        yaxis_title='Объём торговли (млн USD)',
+        title="ТОП-10 стран-партнёров по общему объёму торговли",
+        xaxis_title="Страна",
+        yaxis_title="Объём торговли (млрд USD)",
         height=400,
         font=dict(family="Arial", size=10),
-        xaxis_tickangle=-45
+        xaxis_tickangle=-45,
+        plot_bgcolor="rgba(0,0,0,0)", # Transparent background
+        paper_bgcolor="rgba(0,0,0,0)", # Transparent background
+        xaxis=dict(gridcolor="rgba(0,0,0,0.05)"),
+        yaxis=dict(gridcolor="rgba(0,0,0,0.05)")
     )
     
     return fig
 
 # Callback для торговли с Россией
 @app.callback(
-    Output('russia-trade-chart', 'figure'),
-    Input('russia-trade-chart', 'id') # Dummy input
+    Output("russia-trade-chart", "figure"),
+    Input("russia-trade-chart", "id") # Dummy input
 )
 def update_russia_trade(dummy_input):
-    df = pd.DataFrame(data['russia_trade_dynamics'])
+    df = pd.DataFrame(data["russia_trade_dynamics"])
+    df["year"] = df["year"].astype(int) # Ensure years are integers
     
     if df.empty:
         # Если нет данных по России, показываем пустой график
@@ -336,7 +362,9 @@ def update_russia_trade(dummy_input):
             title="Торговля с Россией (5 лет)",
             height=400,
             xaxis=dict(visible=False),
-            yaxis=dict(visible=False)
+            yaxis=dict(visible=False),
+            plot_bgcolor="rgba(0,0,0,0)", # Transparent background
+            paper_bgcolor="rgba(0,0,0,0)" # Transparent background
         )
         return fig
 
@@ -344,47 +372,51 @@ def update_russia_trade(dummy_input):
     
     # Экспорт
     fig.add_trace(go.Scatter(
-        x=df['year'],
-        y=df['X'],
-        mode='lines+markers',
-        name='Экспорт',
-        line=dict(color='#27ae60', width=3),
+        x=df["year"],
+        y=df["X"] / 1_000_000, # Still in millions for Russia, as per requirement
+        mode="lines+markers",
+        name="Экспорт",
+        line=dict(color="#27ae60", width=3),
         marker=dict(size=6),
-        hovertemplate='Год: %{x}<br>Экспорт: %{customdata}<extra></extra>',
-        customdata=[format_number(val) for val in df['X']]
+        hovertemplate="Год: %{x}<br>Экспорт: %{customdata}<extra></extra>",
+        customdata=[fmt_ru(val / 1_000_000) for val in df["X"]]
     ))
     
     # Импорт
     fig.add_trace(go.Scatter(
-        x=df['year'],
-        y=df['M'],
-        mode='lines+markers',
-        name='Импорт',
-        line=dict(color='#e74c3c', width=3),
+        x=df["year"],
+        y=df["M"] / 1_000_000, # Still in millions for Russia, as per requirement
+        mode="lines+markers",
+        name="Импорт",
+        line=dict(color="#e74c3c", width=3),
         marker=dict(size=6),
-        hovertemplate='Год: %{x}<br>Импорт: %{customdata}<extra></extra>',
-        customdata=[format_number(val) for val in df['M']]
+        hovertemplate="Год: %{x}<br>Импорт: %{customdata}<extra></extra>",
+        customdata=[fmt_ru(val / 1_000_000) for val in df["M"]]
     ))
     
     fig.update_layout(
-        title='Торговля с Россией (5 лет)',
-        xaxis_title='Год',
-        yaxis_title='Объём торговли (млн USD)',
-        hovermode='x unified',
+        title="Торговля с Россией (5 лет)",
+        xaxis_title="Год",
+        yaxis_title="Объём торговли (млн USD)",
+        hovermode="x unified",
         legend=dict(x=0.02, y=0.98),
         height=400,
-        font=dict(family="Arial", size=12)
+        font=dict(family="Arial", size=12),
+        plot_bgcolor="rgba(0,0,0,0)", # Transparent background
+        paper_bgcolor="rgba(0,0,0,0)", # Transparent background
+        xaxis=dict(gridcolor="rgba(0,0,0,0.05)"),
+        yaxis=dict(gridcolor="rgba(0,0,0,0.05)")
     )
     
     return fig
 
 # Callback для изменений структуры торговли
 @app.callback(
-    Output('structure-changes-chart', 'figure'),
-    Input('structure-changes-chart', 'id') # Dummy input
+    Output("structure-changes-chart", "figure"),
+    Input("structure-changes-chart", "id") # Dummy input
 )
 def update_structure_changes(dummy_input):
-    df = pd.DataFrame(data['declining_commodities'])
+    df = pd.DataFrame(data["declining_commodities"])
     
     if df.empty:
         # Если нет данных, показываем пустой график
@@ -400,34 +432,43 @@ def update_structure_changes(dummy_input):
             title="Изменения структуры экспорта (10 лет)",
             height=400,
             xaxis=dict(visible=False),
-            yaxis=dict(visible=False)
+            yaxis=dict(visible=False),
+            plot_bgcolor="rgba(0,0,0,0)", # Transparent background
+            paper_bgcolor="rgba(0,0,0,0)" # Transparent background
         )
         return fig
     
+    df["change_bln"] = df["change"] / 1_000_000_000
+
     # Сокращаем названия товарных групп
-    df['short_name'] = df['commodity_name'].apply(lambda x: x[:30] + '...' if len(x) > 30 else x)
+    df["short_name"] = df["commodity_name"].apply(lambda x: (x[:25] + "...") if len(x) > 25 else x)
     
     fig = go.Figure(go.Bar(
-        x=df['short_name'],
-        y=df['change'],
-        marker_color=['#e74c3c' for x in df['change']],  # Все красные, так как это убывающие товары
-        text=[format_number(val) for val in df['change']],
-        textposition='outside',
-        hovertemplate='%{x}<br>Изменение: %{customdata}<extra></extra>',
-        customdata=[format_number(val) for val in df['change']]
+        x=df["short_name"],
+        y=df["change_bln"],
+        marker_color=["#e74c3c" for x in df["change_bln"]],  # Все красные, так как это убывающие товары
+        text=[fmt_ru(val) for val in df["change_bln"]],
+        textposition="outside",
+        hovertemplate="%{x}<br>Изменение: %{customdata}<extra></extra>",
+        customdata=[fmt_ru(val) for val in df["change_bln"]]
     ))
     
     fig.update_layout(
-        title='Товарные группы с наибольшим снижением объёмов торговли',
-        xaxis_title='Товарная группа',
-        yaxis_title='Изменение объёма (млн USD)',
+        title="Товарные группы с наибольшим снижением объёмов торговли",
+        xaxis_title="Товарная группа",
+        yaxis_title="Изменение объёма (млрд USD)",
         height=400,
         font=dict(family="Arial", size=10),
-        xaxis_tickangle=-45
+        xaxis_tickangle=-45,
+        plot_bgcolor="rgba(0,0,0,0)", # Transparent background
+        paper_bgcolor="rgba(0,0,0,0)", # Transparent background
+        xaxis=dict(gridcolor="rgba(0,0,0,0.05)"),
+        yaxis=dict(gridcolor="rgba(0,0,0,0.05)")
     )
     
     return fig
 
-if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0', port=8050)
+if __name__ == "__main__":
+    app.run_server(debug=True, host="0.0.0.0", port=8050)
+
 
