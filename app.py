@@ -4,16 +4,6 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 import json
-import locale
-
-# Настройка локали для форматирования чисел
-try:
-    locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')
-except:
-    try:
-        locale.setlocale(locale.LC_ALL, 'C.UTF-8')
-    except:
-        pass
 
 # Загрузка данных
 with open('dashboard_data.json', 'r', encoding='utf-8') as f:
@@ -60,7 +50,7 @@ app.layout = html.Div([
     html.Div([
         # ТОП-10 товарных групп
         html.Div([
-            html.H3("ТОП-10 товарных групп", style={'color': '#2c3e50', 'marginBottom': '15px'}),
+            html.H3("ТОП-10 товарных групп по экспорту", style={'color': '#2c3e50', 'marginBottom': '15px'}),
             dcc.Graph(id='top-commodities-chart')
         ], style={'width': '48%', 'display': 'inline-block', 'backgroundColor': '#ffffff', 
                   'padding': '20px', 'borderRadius': '8px', 'boxShadow': '0 2px 4px rgba(0,0,0,0.1)'}),
@@ -159,12 +149,12 @@ def update_trade_dynamics(dummy_input):
         title='Динамика экспорта, импорта и торгового сальдо',
         xaxis_title='Год',
         yaxis=dict(
-            title='Объём торговли',
+            title='Объём торговли (млн USD)',
             side='left',
             tickformat=''
         ),
         yaxis2=dict(
-            title='Торговое сальдо',
+            title='Торговое сальдо (млн USD)',
             side='right',
             overlaying='y',
             tickformat=''
@@ -183,10 +173,7 @@ def update_trade_dynamics(dummy_input):
     Input('top-commodities-chart', 'id') # Dummy input
 )
 def update_top_commodities(dummy_input):
-    # Временно используем экспорт, так как фильтр удален
     df = pd.DataFrame(data['top_export_commodities'])
-    title = 'ТОП-10 товарных групп по экспорту'
-    color = '#27ae60'
     
     # Сокращаем длинные названия товарных групп
     df['short_name'] = df['commodity_name'].apply(lambda x: x[:40] + '...' if len(x) > 40 else x)
@@ -195,7 +182,7 @@ def update_top_commodities(dummy_input):
         x=df['primaryValue'],
         y=df['short_name'],
         orientation='h',
-        marker_color=color,
+        marker_color='#27ae60',
         text=[format_number(val) for val in df['primaryValue']],
         textposition='inside',
         textfont=dict(color='white', size=10),
@@ -204,8 +191,8 @@ def update_top_commodities(dummy_input):
     ))
     
     fig.update_layout(
-        title=title,
-        xaxis_title='Объём',
+        title='ТОП-10 товарных групп по экспорту',
+        xaxis_title='Объём (млн USD)',
         yaxis_title='Товарная группа',
         height=500,
         margin=dict(l=200),
@@ -290,7 +277,7 @@ def update_trade_geography(dummy_input):
     fig.update_layout(
         title='Объёмы торговли по регионам мира',
         xaxis_title='Регион',
-        yaxis_title='Объём торговли',
+        yaxis_title='Объём торговли (млн USD)',
         barmode='group',
         height=400,
         font=dict(family="Arial", size=12)
@@ -306,60 +293,20 @@ def update_trade_geography(dummy_input):
 def update_top_countries(dummy_input):
     df = pd.DataFrame(data['top_partner_countries'])
     
-    # Получаем данные по экспорту и импорту для топ-стран
-    # Это упрощённая версия - в реальности нужно было бы пересчитать из исходных данных
-    # Для демонстрации создадим примерные данные
-    countries = df['country_name'].tolist()[:10]
-    total_values = df['primaryValue'].tolist()[:10]
-    
-    # Примерное разделение на экспорт и импорт (60/40)
-    export_values = [val * 0.6 for val in total_values]
-    import_values = [val * 0.4 for val in total_values]
-    balance_values = [exp - imp for exp, imp in zip(export_values, import_values)]
-    
-    fig = go.Figure()
-    
-    # Экспорт
-    fig.add_trace(go.Bar(
-        x=countries,
-        y=export_values,
-        name='Экспорт',
-        marker_color='#27ae60',
-        text=[format_number(val) for val in export_values],
-        textposition='inside',
-        hovertemplate='%{x}<br>Экспорт: %{customdata}<extra></extra>',
-        customdata=[format_number(val) for val in export_values]
-    ))
-    
-    # Импорт
-    fig.add_trace(go.Bar(
-        x=countries,
-        y=import_values,
-        name='Импорт',
-        marker_color='#e74c3c',
-        text=[format_number(val) for val in import_values],
-        textposition='inside',
-        hovertemplate='%{x}<br>Импорт: %{customdata}<extra></extra>',
-        customdata=[format_number(val) for val in import_values]
-    ))
-    
-    # Сальдо
-    fig.add_trace(go.Bar(
-        x=countries,
-        y=balance_values,
-        name='Сальдо',
+    fig = go.Figure(go.Bar(
+        x=df['country_name'],
+        y=df['primaryValue'],
         marker_color='#3498db',
-        text=[format_number(val) for val in balance_values],
+        text=[format_number(val) for val in df['primaryValue']],
         textposition='outside',
-        hovertemplate='%{x}<br>Сальдо: %{customdata}<extra></extra>',
-        customdata=[format_number(val) for val in balance_values]
+        hovertemplate='%{x}<br>Общий объём торговли: %{customdata}<extra></extra>',
+        customdata=[format_number(val) for val in df['primaryValue']]
     ))
     
     fig.update_layout(
-        title='Торговля с основными странами-партнёрами',
+        title='ТОП-10 стран-партнёров по общему объёму торговли',
         xaxis_title='Страна',
-        yaxis_title='Объём торговли',
-        barmode='group',
+        yaxis_title='Объём торговли (млн USD)',
         height=400,
         font=dict(family="Arial", size=10),
         xaxis_tickangle=-45
@@ -422,7 +369,7 @@ def update_russia_trade(dummy_input):
     fig.update_layout(
         title='Торговля с Россией (5 лет)',
         xaxis_title='Год',
-        yaxis_title='Объём торговли',
+        yaxis_title='Объём торговли (млн USD)',
         hovermode='x unified',
         legend=dict(x=0.02, y=0.98),
         height=400,
@@ -437,22 +384,43 @@ def update_russia_trade(dummy_input):
     Input('structure-changes-chart', 'id') # Dummy input
 )
 def update_structure_changes(dummy_input):
-    df = pd.DataFrame(data['structure_changes'])
+    df = pd.DataFrame(data['declining_commodities'])
+    
+    if df.empty:
+        # Если нет данных, показываем пустой график
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Недостаточно данных для анализа изменений структуры",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5,
+            showarrow=False,
+            font=dict(size=16, color="gray")
+        )
+        fig.update_layout(
+            title="Изменения структуры экспорта (10 лет)",
+            height=400,
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False)
+        )
+        return fig
+    
+    # Сокращаем названия товарных групп
+    df['short_name'] = df['commodity_name'].apply(lambda x: x[:30] + '...' if len(x) > 30 else x)
     
     fig = go.Figure(go.Bar(
-        x=df['commodity_name'],
-        y=df['delta_share'],
-        marker_color=['#27ae60' if x > 0 else '#e74c3c' for x in df['delta_share']],
-        text=[f'{val:+.1f} п.п.' for val in df['delta_share']],
+        x=df['short_name'],
+        y=df['change'],
+        marker_color=['#e74c3c' for x in df['change']],  # Все красные, так как это убывающие товары
+        text=[format_number(val) for val in df['change']],
         textposition='outside',
-        hovertemplate='%{x}<br>Изменение доли: %{customdata}<extra></extra>',
-        customdata=[f'{val:+.1f} п.п.' for val in df['delta_share']]
+        hovertemplate='%{x}<br>Изменение: %{customdata}<extra></extra>',
+        customdata=[format_number(val) for val in df['change']]
     ))
     
     fig.update_layout(
-        title='Изменения структуры экспорта (10 лет)',
+        title='Товарные группы с наибольшим снижением объёмов торговли',
         xaxis_title='Товарная группа',
-        yaxis_title='Изменение доли (п.п.)',
+        yaxis_title='Изменение объёма (млн USD)',
         height=400,
         font=dict(family="Arial", size=10),
         xaxis_tickangle=-45
