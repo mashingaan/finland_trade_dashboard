@@ -39,56 +39,82 @@ app.layout = html.Div([
         dcc.Graph(id="trade-dynamics-chart")
     ], style={"backgroundColor": "#ffffff", "padding": "20px", "marginBottom": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"}),
     
-    # Строка с двумя графиками
+    # Строка с двумя графиками - товарные группы
     html.Div([
-        # ТОП-10 товарных групп
+        # ТОП-10 товарных групп по экспорту
         html.Div([
             html.H3("ТОП-10 товарных групп по экспорту", style={"color": "#2c3e50", "marginBottom": "15px"}),
-            dcc.Graph(id="top-commodities-chart")
+            dcc.Graph(id="top-commodities-export-chart")
         ], style={"width": "48%", "display": "inline-block", "backgroundColor": "#ffffff", 
                   "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"}),
         
+        # ТОП-10 товарных групп по импорту
+        html.Div([
+            html.H3("ТОП-10 товарных групп по импорту", style={"color": "#2c3e50", "marginBottom": "15px"}),
+            dcc.Graph(id="top-commodities-import-chart")
+        ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "backgroundColor": "#ffffff", 
+                  "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"})
+    ], style={"marginBottom": "20px"}),
+    
+    # Строка с двумя графиками
+    html.Div([
         # Экономические секторы
         html.Div([
             html.H3("Экономические секторы", style={"color": "#2c3e50", "marginBottom": "15px"}),
             dcc.Graph(id="economic-sectors-chart")
-        ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "backgroundColor": "#ffffff", 
-                  "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"})
-    ], style={"marginBottom": "20px"}),
-    
-    # Строка с двумя графиками
-    html.Div([
+        ], style={"width": "48%", "display": "inline-block", "backgroundColor": "#ffffff", 
+                  "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"}),
+        
         # География торговли
         html.Div([
             html.H3("География торговли", style={"color": "#2c3e50", "marginBottom": "15px"}),
             dcc.Graph(id="trade-geography-chart")
-        ], style={"width": "48%", "display": "inline-block", "backgroundColor": "#ffffff", 
-                  "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"}),
-        
-        # ТОП-10 стран-партнёров
-        html.Div([
-            html.H3("ТОП-10 стран-партнёров (5 лет)", style={"color": "#2c3e50", "marginBottom": "15px"}),
-            dcc.Graph(id="top-countries-chart")
         ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "backgroundColor": "#ffffff", 
                   "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"})
     ], style={"marginBottom": "20px"}),
     
     # Строка с двумя графиками
     html.Div([
+        # ТОП-10 стран-партнёров
+        html.Div([
+            html.H3("ТОП-10 стран-партнёров (5 лет)", style={"color": "#2c3e50", "marginBottom": "15px"}),
+            dcc.Graph(id="top-countries-chart")
+        ], style={"width": "48%", "display": "inline-block", "backgroundColor": "#ffffff", 
+                  "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"}),
+        
         # Торговля с Россией
         html.Div([
             html.H3("Торговля с Россией (5 лет)", style={"color": "#2c3e50", "marginBottom": "15px"}),
             dcc.Graph(id="russia-trade-chart")
-        ], style={"width": "48%", "display": "inline-block", "backgroundColor": "#ffffff", 
+        ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "backgroundColor": "#ffffff", 
                   "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"})
-    ]),
+    ], style={"marginBottom": "20px"}),
+    
+    # Топ-5 прироста товарных групп (3 года)
+    html.Div([
+        html.H3("Топ-5 прироста товарных групп (3 года)", style={"color": "#2c3e50", "marginBottom": "15px", "textAlign": "center"}),
+        html.Div([
+            # Прирост экспорта
+            html.Div([
+                html.H4("Топ-5 прироста по экспорту", style={"color": "#2c3e50", "marginBottom": "15px"}),
+                dcc.Graph(id="top-growth-export-chart")
+            ], style={"width": "48%", "display": "inline-block", "backgroundColor": "#ffffff", 
+                      "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"}),
+            
+            # Прирост импорта
+            html.Div([
+                html.H4("Топ-5 прироста по импорту", style={"color": "#2c3e50", "marginBottom": "15px"}),
+                dcc.Graph(id="top-growth-import-chart")
+            ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "backgroundColor": "#ffffff", 
+                      "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"})
+        ])
+    ], style={"backgroundColor": "#ecf0f1", "padding": "20px", "marginBottom": "20px", "borderRadius": "8px"}),
     
     # Изменения структуры торговли
     html.Div([
         html.H3("Изменения структуры (10 лет)", style={"color": "#2c3e50", "marginBottom": "15px"}),
         dcc.Graph(id="structure-changes-chart")
-    ], style={"width": "48%", "display": "inline-block", "marginLeft": "4%", "backgroundColor": "#ffffff", 
-              "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"})
+    ], style={"backgroundColor": "#ffffff", "padding": "20px", "borderRadius": "8px", "boxShadow": "0 2px 4px rgba(0,0,0,0.1)"})
 
 ], style={"fontFamily": "Arial, sans-serif", "margin": "0", "padding": "20px", "backgroundColor": "#f8f9fa"})
 
@@ -169,28 +195,28 @@ def update_trade_dynamics(dummy_input):
     
     return fig
 
-# Callback для ТОП-10 товарных групп
+# Callback для ТОП-10 товарных групп по экспорту
 @app.callback(
-    Output("top-commodities-chart", "figure"),
-    Input("top-commodities-chart", "id") # Dummy input
+    Output("top-commodities-export-chart", "figure"),
+    Input("top-commodities-export-chart", "id") # Dummy input
 )
-def update_top_commodities(dummy_input):
+def update_top_commodities_export(dummy_input):
     df = pd.DataFrame(data["top_export_commodities"])
-    df["primaryValue_bln"] = df["primaryValue"] / 1_000_000_000
+    df["value_bln"] = df["primaryValue"] / 1_000_000_000
     
     # Сокращаем длинные названия товарных групп
-    df["short_name"] = df["commodity_name"].apply(lambda x: (x[:25] + "...") if len(x) > 25 else x)
+    df["short_name"] = df["commodity_name"].apply(lambda x: (x[:35] + "...") if len(x) > 35 else x)
     
     fig = go.Figure(go.Bar(
-        x=df["primaryValue_bln"],
+        x=df["value_bln"],
         y=df["short_name"],
         orientation="h",
         marker_color="#27ae60",
-        text=[fmt_ru(val) for val in df["primaryValue_bln"]],
+        text=[fmt_ru(val) for val in df["value_bln"]],
         textposition="inside",
         textfont=dict(color="white", size=10),
-        hovertemplate="%{y}<br>Объём: %{customdata}<extra></extra>",
-        customdata=[fmt_ru(val) for val in df["primaryValue_bln"]]
+        hovertemplate="%{customdata}<br>Объём: %{text}<extra></extra>",
+        customdata=df["commodity_name"]
     ))
     
     fig.update_layout(
@@ -202,7 +228,47 @@ def update_top_commodities(dummy_input):
         font=dict(family="Arial", size=10),
         plot_bgcolor="rgba(0,0,0,0)", # Transparent background
         paper_bgcolor="rgba(0,0,0,0)", # Transparent background
-        xaxis=dict(gridcolor="rgba(0,0,0,0.05)")
+        xaxis=dict(gridcolor="rgba(0,0,0,0.05)"),
+        yaxis=dict(gridcolor="rgba(0,0,0,0.05)")
+    )
+    
+    return fig
+
+# Callback для ТОП-10 товарных групп по импорту
+@app.callback(
+    Output("top-commodities-import-chart", "figure"),
+    Input("top-commodities-import-chart", "id") # Dummy input
+)
+def update_top_commodities_import(dummy_input):
+    df = pd.DataFrame(data["top_import_commodities"])
+    df["value_bln"] = df["primaryValue"] / 1_000_000_000
+    
+    # Сокращаем длинные названия товарных групп
+    df["short_name"] = df["commodity_name"].apply(lambda x: (x[:35] + "...") if len(x) > 35 else x)
+    
+    fig = go.Figure(go.Bar(
+        x=df["value_bln"],
+        y=df["short_name"],
+        orientation="h",
+        marker_color="rgba(0,123,255,0.8)",  # Bootstrap primary blue
+        text=[fmt_ru(val) for val in df["value_bln"]],
+        textposition="inside",
+        textfont=dict(color="white", size=10),
+        hovertemplate="%{customdata}<br>Объём: %{text}<extra></extra>",
+        customdata=df["commodity_name"]
+    ))
+    
+    fig.update_layout(
+        title="ТОП-10 товарных групп по импорту",
+        xaxis_title="Объём (млрд USD)",
+        yaxis_title="Товарная группа",
+        height=500,
+        margin=dict(l=200),
+        font=dict(family="Arial", size=10),
+        plot_bgcolor="rgba(0,0,0,0)", # Transparent background
+        paper_bgcolor="rgba(0,0,0,0)", # Transparent background
+        xaxis=dict(gridcolor="rgba(0,0,0,0.05)"),
+        yaxis=dict(gridcolor="rgba(0,0,0,0.05)")
     )
     
     return fig
@@ -438,29 +504,147 @@ def update_structure_changes(dummy_input):
         return fig
     
     df["change_bln"] = df["change"] / 1_000_000_000
-
+    
     # Сокращаем названия товарных групп
     df["short_name"] = df["commodity_name"].apply(lambda x: (x[:25] + "...") if len(x) > 25 else x)
     
     fig = go.Figure(go.Bar(
-        x=df["short_name"],
-        y=df["change_bln"],
-        marker_color=["#e74c3c" for x in df["change_bln"]],  # Все красные, так как это убывающие товары
+        x=df["change_bln"],
+        y=df["short_name"],
+        orientation="h",
+        marker_color="#e74c3c",
         text=[fmt_ru(val) for val in df["change_bln"]],
-        textposition="outside",
-        hovertemplate="%{x}<br>Изменение: %{customdata}<extra></extra>",
-        customdata=[fmt_ru(val) for val in df["change_bln"]]
+        textposition="inside",
+        textfont=dict(color="white", size=10),
+        hovertemplate="%{customdata}<br>Изменение: %{text}<extra></extra>",
+        customdata=df["commodity_name"]
     ))
     
     fig.update_layout(
         title="Товарные группы с наибольшим снижением объёмов торговли",
-        xaxis_title="Товарная группа",
-        yaxis_title="Изменение объёма (млрд USD)",
+        xaxis_title="Изменение объёма (млрд USD)",
+        yaxis_title="Товарная группа",
         height=400,
+        margin=dict(l=200),
         font=dict(family="Arial", size=10),
-        xaxis_tickangle=-45,
         plot_bgcolor="rgba(0,0,0,0)", # Transparent background
         paper_bgcolor="rgba(0,0,0,0)", # Transparent background
+        xaxis=dict(gridcolor="rgba(0,0,0,0.05)"),
+        yaxis=dict(gridcolor="rgba(0,0,0,0.05)")
+    )
+    
+    return fig
+
+# Callback для топ-5 прироста экспорта
+@app.callback(
+    Output("top-growth-export-chart", "figure"),
+    Input("top-growth-export-chart", "id") # Dummy input
+)
+def update_top_growth_export(dummy_input):
+    df = pd.DataFrame(data["export_growth"])
+    
+    if df.empty:
+        # Если нет данных, показываем пустой график
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Нет данных по приросту экспорта",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5,
+            showarrow=False,
+            font=dict(size=16, color="gray")
+        )
+        fig.update_layout(
+            title="Топ-5 прироста по экспорту (2021→2023)",
+            height=400,
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)"
+        )
+        return fig
+    
+    # Сокращаем названия товарных групп
+    df["short_name"] = df["commodity_name"].apply(lambda x: (x[:35] + "...") if len(x) > 35 else x)
+    
+    fig = go.Figure(go.Bar(
+        x=df["delta"],
+        y=df["short_name"],
+        orientation="h",
+        marker_color="#28a745",  # Зеленый цвет для экспорта
+        text=[fmt_ru(val) for val in df["delta"]],
+        textposition="inside",
+        textfont=dict(color="white", size=10),
+        hovertemplate="%{customdata}<br>Прирост: %{text}<extra></extra>",
+        customdata=df["commodity_name"]
+    ))
+    
+    fig.update_layout(
+        title="Топ-5 прироста по экспорту (2021→2023)",
+        xaxis_title="Прирост объёма (млрд USD)",
+        yaxis_title="Товарная группа",
+        height=400,
+        margin=dict(l=200),
+        font=dict(family="Arial", size=10),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        xaxis=dict(gridcolor="rgba(0,0,0,0.05)"),
+        yaxis=dict(gridcolor="rgba(0,0,0,0.05)")
+    )
+    
+    return fig
+
+# Callback для топ-5 прироста импорта
+@app.callback(
+    Output("top-growth-import-chart", "figure"),
+    Input("top-growth-import-chart", "id") # Dummy input
+)
+def update_top_growth_import(dummy_input):
+    df = pd.DataFrame(data["import_growth"])
+    
+    if df.empty:
+        # Если нет данных, показываем пустой график
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Нет данных по приросту импорта",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5,
+            showarrow=False,
+            font=dict(size=16, color="gray")
+        )
+        fig.update_layout(
+            title="Топ-5 прироста по импорту (2021→2023)",
+            height=400,
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)"
+        )
+        return fig
+    
+    # Сокращаем названия товарных групп
+    df["short_name"] = df["commodity_name"].apply(lambda x: (x[:35] + "...") if len(x) > 35 else x)
+    
+    fig = go.Figure(go.Bar(
+        x=df["delta"],
+        y=df["short_name"],
+        orientation="h",
+        marker_color="#ff5733",  # Красно-оранжевый цвет для импорта
+        text=[fmt_ru(val) for val in df["delta"]],
+        textposition="inside",
+        textfont=dict(color="white", size=10),
+        hovertemplate="%{customdata}<br>Прирост: %{text}<extra></extra>",
+        customdata=df["commodity_name"]
+    ))
+    
+    fig.update_layout(
+        title="Топ-5 прироста по импорту (2021→2023)",
+        xaxis_title="Прирост объёма (млрд USD)",
+        yaxis_title="Товарная группа",
+        height=400,
+        margin=dict(l=200),
+        font=dict(family="Arial", size=10),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
         xaxis=dict(gridcolor="rgba(0,0,0,0.05)"),
         yaxis=dict(gridcolor="rgba(0,0,0,0.05)")
     )
