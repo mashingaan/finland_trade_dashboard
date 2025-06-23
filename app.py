@@ -5,6 +5,9 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import pandas as pd
 import json
+import os
+
+
 
 # Функция для форматирования чисел
 def fmt_ru(v):
@@ -745,5 +748,6 @@ def update_top_growth_import(dummy_input):
     return fig
 
 if __name__ == "__main__":
-    app.run_server(debug=True, host="0.0.0.0", port=8050)
+    port = int(os.environ.get("PORT", 8050))
+    app.run_server(debug=False, host="0.0.0.0", port=port)
 
